@@ -4,7 +4,7 @@ const shopModel = require("../models/shop.model")
 const bcrypt = require("bcrypt")
 const crypto = require("crypto")
 const KeyTokenService = require("./keyToken.service")
-const { createTokenPair } = require("../auth/authUtils")
+const { createTokenPair, verifyJWT } = require("../auth/authUtils")
 const { getInfoData } = require("../utils")
 const { ConflictRequestError, BadRequestError, AuthFailureError } = require("../core/error.response")
 const { findByEmail } = require("./shop.service")
@@ -18,6 +18,23 @@ const RoleShop = {
 }
 
 class AccessService {
+
+    static handlerRefreshToken = async (refreshToken) => {
+        // check refresh token used
+        const foundToken = await KeyTokenService.findByRefreshTokenUsed(refreshToken)
+        if (foundToken) {
+            //decode xem may la ai
+            const { userId, email } = await verifyJWT(refreshToken, foundToken.privatekey)
+        }
+    }
+
+    static logout = async (keyStore) => {
+        console.log("logunauthorized")
+        const delKey = await KeyTokenService.removeKeyById(keyStore._id)
+
+        console.log('xoa roi: ', delKey)
+        return delKey
+    }
     /*
         1-check email in db
         2-match password in db
@@ -31,7 +48,6 @@ class AccessService {
         if (!foundShop) throw new BadRequestError('Shop not registered')
         //2
         const match = await bryct.compare(password, foundShop.password)
-        console.log('match', match)
         if (!match) throw new AuthFailureError('Authentication failed')
         //3. create private, public key
         // const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
