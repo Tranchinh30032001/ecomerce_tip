@@ -1,6 +1,9 @@
 'use strict'
 
+const apikeyModel = require("../models/apikey.model")
+const keytokenModel = require("../models/keytoken.model")
 const { findById } = require("../services/apikey.service")
+const crypto = require('crypto')
 
 const HEADER = {
     API_KEY: 'x-api-key',
@@ -11,6 +14,8 @@ const apiKey = async (req, res, next) => {
     try {
         const key = req.headers[HEADER.API_KEY]?.toString()
         if (!key) {
+            // const key = crypto.randomBytes(64).toString('hex')
+            // apikeyModel.create({ key: key, permissions: ['0000'] })
             return res.status(403).json({
                 msg: 'Forbidden'
             })
@@ -48,14 +53,7 @@ const permission = (permission) => {
     }
 }
 
-const asyncHandler = fn => {
-    return (req, res, next) => {
-        fn(req, res).catch(next)
-    }
-}
-
 module.exports = {
     apiKey,
     permission,
-    asyncHandler
 }

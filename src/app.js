@@ -5,9 +5,9 @@ const { default: helmet } = require('helmet')
 const compression = require('compression')
 //init middlewares
 
-app.use(morgan('dev'))
+app.use(morgan('dev')) // ghi lai log nhu id dia chi nguoi dung goi toi http
 app.use(helmet())
-app.use(compression())
+app.use(compression()) // giúp cải thiện bảo mật của ứng dụng web bằng cách thêm các http headers bảo mật
 app.use(express.json())
 app.use(express.urlencoded({
     extended: true
